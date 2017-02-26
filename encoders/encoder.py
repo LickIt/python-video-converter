@@ -8,7 +8,7 @@ from configuration import EncodingCompleteAction
 class Encoder(threading.Thread):
     """ Abstract base class for encoding """
 
-    def __init__(self, input_file, configuration, interrupt, encoder):
+    def __init__(self, input_file, configuration, interrupt):
         super().__init__()
 
         input_file = os.path.realpath(input_file)
@@ -19,7 +19,6 @@ class Encoder(threading.Thread):
         self.input_file = input_file
         self.output_file = output_file
         self.interrupt = interrupt
-        self.encoder = encoder
         self.complete_action = configuration.complete_action
 
     @staticmethod

@@ -11,7 +11,8 @@ class Configuration(object):
                  video_extensions, complete_action, poll_frequency="60", loglevel="info"):
         self.profile = profile
         self.input_directory = os.path.abspath(input_directory)
-        self.video_extensions = video_extensions.split(",")
+        self.video_extensions = [e.strip()
+                                 for e in video_extensions.split(",")]
         self.output_directory = os.path.abspath(output_directory)
         self.poll_frequency = int(poll_frequency)
         self.loglevel = loglevel.upper()

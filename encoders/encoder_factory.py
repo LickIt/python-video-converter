@@ -29,6 +29,6 @@ class EncoderFactory(object):
     def create_encoder(input_file, configuration, interrupt):
         """ Create encoder instance for the specified file based on the configuration """
 
-        encoder_name = configuration.profile_parameters["encoder"]
+        encoder_name = configuration.profile_instance.encoder
         encoder_class = EncoderFactory.get_encoder_definition(encoder_name)[0]
         return encoder_class(input_file, configuration, interrupt, configuration.profile_instance)
