@@ -8,7 +8,7 @@ import sys
 import threading
 import os
 import logging
-from converter import Converter
+from encoders import EncoderFactory
 from configuration import Configuration
 
 
@@ -16,11 +16,12 @@ class Main(object):
     """ The program's main execution class """
 
     def __init__(self, config_file):
-        self.configuration = Configuration.read_from(config_file)
+        self.configuration = Configuration.read_from(
+            config_file, EncoderFactory.create_encoding_profile)
         logging.basicConfig(
             format="[%(levelname)s] %(asctime)s - %(message)s",
             level=logging.getLevelName(self.configuration.loglevel))
-        logging.debug(self.configuration.__dict__)
+        logging.debug("Loaded configuration: %s", self.configuration)
         self._interrupt = threading.Event()
         self._converters = dict()
         self._converters_lock = threading.Lock()
@@ -48,8 +49,8 @@ class Main(object):
                         if file in self._converters:
                             continue
 
-                        self._converters[file] = Converter(
-                            file, self.configuration, self._interrupt)
+                        self._converters[file] = EncoderFactory.create_encoder(
+                            file, self.configuration, self._interrupt,)
                         self._converters[file].start()
 
                 # if interrupted between sleeps
@@ -71,14 +72,15 @@ class Main(object):
                 if os.path.splitext(f)[1][1:] in video_extensions]
 
 
-configuration_file = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), "configuration.ini")
-if len(sys.argv) == 2:
-    configuration_file = sys.argv[1]
-main = Main(configuration_file)
+if __name__ == "__main__":
+    configuration_file = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)), "configuration.ini")
+    if len(sys.argv) == 2:
+        configuration_file = sys.argv[1]
+    main = Main(configuration_file)
 
-# stop the program gracefully on interrupt and terminate
-signal.signal(signal.SIGINT, main.sigterm_handler)
-signal.signal(signal.SIGTERM, main.sigterm_handler)
+    # stop the program gracefully on interrupt and terminate
+    signal.signal(signal.SIGINT, main.sigterm_handler)
+    signal.signal(signal.SIGTERM, main.sigterm_handler)
 
-main.run()
+    main.run()
